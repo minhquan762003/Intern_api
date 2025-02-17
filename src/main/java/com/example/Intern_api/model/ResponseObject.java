@@ -37,8 +37,5 @@ public class ResponseObject {
     public void setData(Object data) {
         this.data = data;
     }
-    public void nhanhA(){
-        
-    }
 
 }

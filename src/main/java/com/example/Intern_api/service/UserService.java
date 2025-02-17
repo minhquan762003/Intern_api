@@ -113,7 +113,7 @@ public class UserService {
     public ResponseObject getUserByUserId(Long userId) {
         Optional<User> foundUser = userRepository.findById(userId);
         if (foundUser.isPresent()) {
-            return new ResponseObject("ok", "   Truy xuat user thanh cong", foundUser);
+            return new ResponseObject("ok", "Truy xuat user thanh cong", foundUser);
         }
         return new ResponseObject("failed", "Truy xuat user that bai", "");
     }
