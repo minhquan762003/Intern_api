@@ -1,12 +1,14 @@
 package com.example.Intern_api.service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,29 +43,36 @@ public class UserService {
     @Autowired
     RoleRepository roleRepository;
 
+    @Autowired
+    private MessageSource messageSource;
+
+
     private final PasswordEncoder passwordEncoder;
 
     public UserService(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public ResponseObject registerUser(User user) {
+    public ResponseObject registerUser(User user, Locale locale) {
 
         if (!StringUtils.hasText(user.getUserName()) || !StringUtils.hasText(user.getEmail())
                 || !StringUtils.hasText(user.getPassword())) {
-            return new ResponseObject("failed", "Đăng ký thất bại, không được để trống thông tin", "");
+            String errorMessage = messageSource.getMessage("user.fetch.regiter.failed.empty", null, locale);
+            return new ResponseObject("failed", errorMessage, "");
         }
 
         String gmailRegex = "^[a-zA-Z0-9._%+-]+@gmail\\.com$";
         Pattern pattern = Pattern.compile(gmailRegex);
         if (!pattern.matcher(user.getEmail()).matches()) {
-            return new ResponseObject("failed", "Đăng ký thất bại, email phải là địa chỉ Gmail hợp lệ", "");
+            String errorMessage = messageSource.getMessage("user.fetch.regiter.failed.gmail", null, locale);
+            return new ResponseObject("failed", errorMessage, "");
         }
 
         Optional<User> foundUser = userRepository.findByUserName(user.getUserName());
         Optional<User> foundEmail = userRepository.findByEmail(user.getEmail());
         if (foundUser.isPresent() || foundEmail.isPresent()) {
-            return new ResponseObject("failed", "Đăng ký thất bại, tài khoản hoặc email đã tồn tại", "");
+            String errorMessage = messageSource.getMessage("user.failed.regiter.failed.alreadyused", null, locale);
+            return new ResponseObject("failed", errorMessage, "");
         }
         Role userRole = roleRepository.findByRoleName("USER");
 
@@ -74,12 +83,13 @@ public class UserService {
 
         userAndRole.setRole(userRole);
         userAndRole.setUser(savedUser);
-        userAndRoleService.saveUserAndRoleService(userAndRole);
+        userAndRoleService.saveUserAndRoleService(userAndRole, locale);
 
-        return new ResponseObject("ok", "Đăng ký thành công", savedUser);
+        String successMessage = messageSource.getMessage("user.fetch.regiter.success",null, locale);
+        return new ResponseObject("ok", successMessage, savedUser);
     }
 
-    public ResponseObject loginUser(String userName, String password) {
+    public ResponseObject loginUser(String userName, String password, Locale locale) {
         Optional<User> foundUser = userRepository.findByUserName(userName);
 
         if (foundUser.isPresent()) {
@@ -90,61 +100,74 @@ public class UserService {
                 List<Role> roleList = userAndRoleRepository.findRolesByUserId(foundUser.get().getUserId());
                 Set<String> roles = roleList.stream().map(Role::getRoleName).collect(Collectors.toSet());
 
-                System.out.println("Danh sách roles của user: " + roles);
+                // System.out.println("Danh sách roles của user: " + roles);
                 String token = jwtUtils.generateToken(foundUser.get().getUserId(), userName, roles);
-
-                return new ResponseObject("ok", "Login thành công", token);
+                String successMessage = messageSource.getMessage("user.fetch.login.success", null, locale);
+                return new ResponseObject("ok",successMessage , token);
             }
         }
-        return new ResponseObject("failed", "Login thất bại", "");
+        String errorMessage = messageSource.getMessage("user.fetch.login.failed",null,  locale);
+        return new ResponseObject("failed",errorMessage , "");
     }
 
-    public ResponseObject getAllUsers(int page, int size) {
+    public ResponseObject getAllUsers(int page, int size, Locale locale) {
         try {
-        Pageable pageable = PageRequest.of(page, size);
+            Pageable pageable = PageRequest.of(page, size);
+            Page<User> foundUsers = userRepository.findAll(pageable);
 
-        Page<User> foundUsers = userRepository.findAll(pageable);
-        return new ResponseObject("ok", "Truy xuất all user thành công", foundUsers);
+            String successMessage = messageSource.getMessage("user.fetch.success", null, locale);
+
+            return new ResponseObject("ok", successMessage , foundUsers);
         } catch (Exception e) {
-        return new ResponseObject("failed", "Truy xuất all user not thành công", "");
+            String errorMessage = messageSource.getMessage("user.fetch.failed",null,  locale);
+            return new ResponseObject("failed",errorMessage , "");
         }
     }
 
-    public ResponseObject getUserByUserId(Long userId) {
+    public ResponseObject getUserByUserId(Long userId, Locale locale) {
         Optional<User> foundUser = userRepository.findById(userId);
         if (foundUser.isPresent()) {
-            return new ResponseObject("ok", "Truy xuat user thanh cong", foundUser);
+            String successMessage = messageSource.getMessage("user.fetch.one.success",null, locale);
+            return new ResponseObject("ok", successMessage, foundUser);
         }
-        return new ResponseObject("failed", "Truy xuat user that bai", "");
+
+        String errorMessage = messageSource.getMessage("user.fetch.one.failed",null, locale);
+        return new ResponseObject("failed", errorMessage , "");
     }
 
-    public ResponseObject deleteUserByUserId(Long userId) {
+    public ResponseObject deleteUserByUserId(Long userId, Locale locale) {
         Optional<User> foundUser = userRepository.findById(userId);
         if (foundUser.isPresent()) {
             userRepository.deleteById(userId);
-            return new ResponseObject("ok", "Xoa user thanh cong", foundUser);
+            String successMessage = messageSource.getMessage("user.fetch.delete.success",null, locale);
+            return new ResponseObject("ok", successMessage, foundUser);
         }
-        return new ResponseObject("failed", "User khong ton tai", "");
+        String errorMessage = messageSource.getMessage("user.fetch.delete.failed",null, locale);
+        return new ResponseObject("failed", errorMessage, "");
     }
 
-    public ResponseObject updateUserByUserId(User newUser, Long userId) {
+    public ResponseObject updateUserByUserId(User newUser, Long userId, Locale locale) {
         try {
             // Kiểm tra dữ liệu đầu vào
             if (newUser.getUserName() == null || newUser.getUserName().isBlank()) {
-                return new ResponseObject("failed", "Tên người dùng không được để trống", "");
+                String errorMessage = messageSource.getMessage("user.fetch.update.username",null, locale);
+                return new ResponseObject("failed", errorMessage, "");
             }
             if (newUser.getPassword() == null || newUser.getPassword().length() < 6) {
-                return new ResponseObject("failed", "Mật khẩu phải có ít nhất 6 ký tự", "");
+                String errorMessage = messageSource.getMessage("user.fetch.update.password",null, locale);
+                return new ResponseObject("failed", errorMessage, "");
             }
             String gmailRegex = "^[a-zA-Z0-9._%+-]+@gmail\\.com$";
             Pattern pattern = Pattern.compile(gmailRegex);
-            if (newUser.getEmail() == null ||!pattern.matcher(newUser.getEmail()).matches() ) {
-                return new ResponseObject("failed", "Email không hợp lệ", "");
+            if (newUser.getEmail() == null || !pattern.matcher(newUser.getEmail()).matches()) {
+                String errorMessage = messageSource.getMessage("user.fetch.update.email",null, locale);
+                return new ResponseObject("failed", errorMessage, "");
             }
 
             // Tìm user theo ID
+            String errorMessage = messageSource.getMessage("user.fetch.update.notpresent",null, locale);
             User updatedUser = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+                    .orElseThrow(() -> new RuntimeException(errorMessage));
 
             // Cập nhật thông tin
             updatedUser.setUserName(newUser.getUserName());
@@ -155,10 +178,12 @@ public class UserService {
             // Lưu vào database
             userRepository.save(updatedUser);
 
-            return new ResponseObject("ok", "Sửa thông tin user thành công", updatedUser);
+            String successMessage = messageSource.getMessage("user.fetch.update.success",null, locale);
+            return new ResponseObject("ok", successMessage, updatedUser);
         } catch (Exception e) {
             e.printStackTrace(); // Log lỗi ra console để debug
-            return new ResponseObject("failed", "Lỗi khi cập nhật user: " + e.getMessage(), "");
+            String successMessage = messageSource.getMessage("user.fetch.update.exception",null, locale);
+            return new ResponseObject("failed",successMessage + " " + e.getMessage(), "");
         }
     }
 }

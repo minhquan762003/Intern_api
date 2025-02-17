@@ -1,9 +1,11 @@
 package com.example.Intern_api.service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import com.example.Intern_api.model.ResponseObject;
@@ -14,43 +16,54 @@ import com.example.Intern_api.repository.UserAndRoleRepository;
 public class UserAndRoleService {
     @Autowired
     private UserAndRoleRepository userAndRoleRepository;
+    @Autowired
+    private MessageSource messageSource;
 
-    public ResponseObject saveUserAndRoleService (UserAndRole userAndRole){
+    public ResponseObject saveUserAndRoleService (UserAndRole userAndRole,Locale locale){
         try {
             UserAndRole savedUserAndRole = userAndRoleRepository.save(userAndRole);
-            return new ResponseObject("ok", "Lưu khóa ngoại user and role thành công", savedUserAndRole);
+            String successMessage = messageSource.getMessage("userandrole.fetch.save.success",null, locale);
+            return new ResponseObject("ok", successMessage, savedUserAndRole);
         } catch (Exception e) {
-            return new ResponseObject("failed", "Lưu khóa ngoại user and role not thành công", "");
+            String errorMessage = messageSource.getMessage("userandrole.fetch.save.failed",null, locale);
+            return new ResponseObject("failed", errorMessage, "");
         }
     }
 
-    public ResponseObject getAllUserAndRoles(){
+    public ResponseObject getAllUserAndRoles(Locale locale){
         try {
             List<UserAndRole> userAndRoles = userAndRoleRepository.findAll();
-            return new ResponseObject("ok", "Truy xuat khoa ngoai user va role thanh cong", userAndRoles);
+            String successMessage = messageSource.getMessage("userandrole.fetch.get.success",null, locale);
+            return new ResponseObject("ok", successMessage, userAndRoles);
         } catch (Exception e) {
-            return new ResponseObject("failed", "Truy xuat khoa user va role that bai", "");
+            String errorMessage = messageSource.getMessage("userandrole.fetch.get.failed",null, locale);
+            return new ResponseObject("failed", errorMessage, "");
         }
     }
-    public ResponseObject getUserAndRoleById(Long Id){
+    public ResponseObject getUserAndRoleById(Long Id, Locale locale){
         Optional<UserAndRole> foundUserAndRole = userAndRoleRepository.findById(Id);
         if(foundUserAndRole.isPresent()){
             userAndRoleRepository.findById(Id);
-            return new ResponseObject("ok", "Truy xuat khoa ngoai thanh cong", foundUserAndRole);
+            String successMessage = messageSource.getMessage("userandrole.fetch.get.success",null, locale);
+            return new ResponseObject("ok", successMessage, foundUserAndRole);
 
         }
-        return new ResponseObject("failed", "Truy xuat khoa ngoai khong thanh cong", "");
+        String errorMessage = messageSource.getMessage("userandrole.fetch.get.failed",null, locale);
+
+        return new ResponseObject("failed", errorMessage, "");
 
     }
 
-    public ResponseObject deleteUserAndRoleById(Long Id){
+    public ResponseObject deleteUserAndRoleById(Long Id, Locale locale){
         Optional<UserAndRole> foundUserAndRole = userAndRoleRepository.findById(Id);
         if(foundUserAndRole.isPresent()){
             userAndRoleRepository.deleteById(Id);
-            return new ResponseObject("ok", "Xoa khoa ngoai thanh cong", foundUserAndRole);
+            String successMessage = messageSource.getMessage("userandrole.fetch.delete.success",null, locale);
+            return new ResponseObject("ok", successMessage, foundUserAndRole);
 
         }
-        return new ResponseObject("failed", "Id khoa ngoai khong ton tai", "");
+        String errorMessage = messageSource.getMessage("userandrole.fetch.delete.failed",null, locale);
+        return new ResponseObject("failed", errorMessage, "");
     }
 
     // public ResponseObject updateUserAndRoleById(UserAndRole userAndRole, Long Id){

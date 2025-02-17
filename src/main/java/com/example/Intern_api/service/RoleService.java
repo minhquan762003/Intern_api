@@ -1,9 +1,11 @@
 package com.example.Intern_api.service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import com.example.Intern_api.model.ResponseObject;
@@ -15,58 +17,72 @@ public class RoleService {
     @Autowired
     private RoleRepository roleRepository;
 
-    public ResponseObject saveRole(Role role) {
+    @Autowired
+    private MessageSource messageSource;
+
+    public ResponseObject saveRole(Role role, Locale locale) {
         try {
             Role savedRole = roleRepository.save(role);
-            return new ResponseObject("ok", "Lưu role thành công", savedRole);
+            String successMessage = messageSource.getMessage("role.fetch.save.success", null, locale);
+            return new ResponseObject("ok", successMessage, savedRole);
         } catch (Exception e) {
-            return new ResponseObject("failed", "Lưu role không thành công", "");
+            String errorMessage = messageSource.getMessage("role.fetch.save.failed", null, locale);
+            return new ResponseObject("failed", errorMessage, "");
 
         }
     }
 
-    public ResponseObject getAllRoles() {
+    public ResponseObject getAllRoles(Locale locale) {
         try {
             List<Role> foundLists = roleRepository.findAll();
-            return new ResponseObject("ok", "Truy xuất all role thành công", foundLists);
+            String successMessage = messageSource.getMessage("role.fetch.get.success", null, locale);
+            return new ResponseObject("ok", successMessage, foundLists);
         } catch (Exception e) {
-            return new ResponseObject("failed", "Truy xuất all role not thành công", "");
+            String errorMessage = messageSource.getMessage("role.fetch.get.failed", null, locale);
+            return new ResponseObject("failed", errorMessage, "");
         }
     }
 
-    public ResponseObject getRoleByRoleId(Long roleId) {
+    public ResponseObject getRoleByRoleId(Long roleId, Locale locale) {
         if ((roleRepository.findById(roleId)).isPresent()) {
-            return new ResponseObject("ok", "Truy xuất thành công", roleRepository.findById(roleId));
+            String successMessage = messageSource.getMessage("role.fetch.get.success", null, locale);
+            return new ResponseObject("ok", successMessage, roleRepository.findById(roleId));
         } else {
-            return new ResponseObject("failed", "Truy xuất không thành công", "");
+            String errorMessage = messageSource.getMessage("role.fetch.get.failed", null, locale);
+            return new ResponseObject("failed", errorMessage, "");
         }
     }
 
-    public ResponseObject deleteRoleByRoleId(Long roleId) {
+    public ResponseObject deleteRoleByRoleId(Long roleId, Locale locale) {
         if ((roleRepository.findById(roleId)).isPresent()) {
             Optional<Role> deletedRole = roleRepository.findById(roleId);
             roleRepository.deleteById(roleId);
-            return new ResponseObject("ok", "Xóa role thành công", deletedRole);
+            String successMessage = messageSource.getMessage("role.fetch.delete.success", null, locale);
+            return new ResponseObject("ok", successMessage, deletedRole);
         } else {
-            return new ResponseObject("failed", "Xóa role khôg thàng công", "");
+            String errorMessage = messageSource.getMessage("role.fetch.delete.failed", null, locale);
+            return new ResponseObject("failed", errorMessage, "");
         }
     }
 
-    public ResponseObject updateRoleByRoleId(Role newRole, Long roleId) {
+    public ResponseObject updateRoleByRoleId(Role newRole, Long roleId, Locale locale) {
 
         try {
             Role updatedRole = roleRepository.findById(roleId).map(
-                role -> {
-                    role.setRoleName(newRole.getRoleName());
-                    role.setDescription(newRole.getDescription());
-                    return roleRepository.save(role);
-                }).orElseGet(() -> {
-                    return roleRepository.save(newRole);
-                });
-                return new ResponseObject("ok", "Sua thong tin san pham thanh cong", updatedRole);
+                    role -> {
+                        role.setRoleName(newRole.getRoleName());
+                        role.setDescription(newRole.getDescription());
+                        return roleRepository.save(role);
+                    }).orElseGet(() -> {
+                        return roleRepository.save(newRole);
+                    });
+            String successMessage = messageSource.getMessage("role.fetch.delete.success", null, locale);
+
+            return new ResponseObject("ok", successMessage, updatedRole);
 
         } catch (Exception e) {
-            return new ResponseObject("ok", "Sua thong tin khong thanh cong", "");
+            String errorMessage = messageSource.getMessage("role.fetch.update.failed", null, locale);
+            return new ResponseObject("ok", errorMessage, "");
 
         }
     }

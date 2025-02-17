@@ -1,5 +1,7 @@
 package com.example.Intern_api.controller;
 
+import java.util.Locale;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,8 +28,8 @@ public class UserAndRoleController {
 
     @PostMapping("/saveUserAndRole")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<ResponseObject> saveUserAndRole(@RequestBody UserAndRole userAndRole) {
-        ResponseObject responseObject = userAndRoleService.saveUserAndRoleService(userAndRole);
+    public ResponseEntity<ResponseObject> saveUserAndRole(@RequestBody UserAndRole userAndRole,@RequestHeader(name = "Accept-Language", required = false) Locale locale) {
+        ResponseObject responseObject = userAndRoleService.saveUserAndRoleService(userAndRole, locale);
         if (responseObject.getStatus().equals("failed"))
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(responseObject);
 
@@ -36,8 +39,8 @@ public class UserAndRoleController {
     //Lấy tất cả role
     @GetMapping("/allUserAndRoles")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<ResponseObject> getAllUsers() {
-        ResponseObject responseObject = userAndRoleService.getAllUserAndRoles();
+    public ResponseEntity<ResponseObject> getAllUsers(@RequestHeader(name = "Accept-Language", required = false) Locale locale) {
+        ResponseObject responseObject = userAndRoleService.getAllUserAndRoles(locale);
         if (responseObject.getStatus().equals("failed"))
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(responseObject);
 
@@ -46,8 +49,8 @@ public class UserAndRoleController {
 
     @GetMapping("/getUserAndRoleById/{Id}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<ResponseObject> getUserAndRoleById(@PathVariable Long Id) {
-        ResponseObject responseObject = userAndRoleService.getUserAndRoleById(Id);
+    public ResponseEntity<ResponseObject> getUserAndRoleById(@PathVariable Long Id, @RequestHeader(name = "Accept-Language", required = false) Locale locale) {
+        ResponseObject responseObject = userAndRoleService.getUserAndRoleById(Id, locale);
         if (responseObject.getStatus().equals("failed"))
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(responseObject);
 
@@ -56,8 +59,8 @@ public class UserAndRoleController {
 
     @DeleteMapping("/deleteUserAndRoleById/{Id}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<ResponseObject> deleteUserAndRoleById(@PathVariable Long Id) {
-        ResponseObject responseObject = userAndRoleService.deleteUserAndRoleById(Id);
+    public ResponseEntity<ResponseObject> deleteUserAndRoleById(@PathVariable Long Id, @RequestHeader(name = "Accept-Language", required = false) Locale locale) {
+        ResponseObject responseObject = userAndRoleService.deleteUserAndRoleById(Id, locale);
         if (responseObject.getStatus().equals("failed"))
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(responseObject);
 
