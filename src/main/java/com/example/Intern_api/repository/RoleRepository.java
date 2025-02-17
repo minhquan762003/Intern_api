@@ -7,5 +7,5 @@ import com.example.Intern_api.model.Role;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role,Long>{
-    
+    public Role findByRoleName(String roleName);
 }

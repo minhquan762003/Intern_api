@@ -1,7 +1,6 @@
 package com.example.Intern_api.model;
 
 import java.util.Date;
-import java.util.Set;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -33,9 +32,7 @@ public class User {
     @Column(name = "updated_at")
     private Date updated_at;
     
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Set<UserAndRole> userAndRoles;
-
+    
     @PreUpdate
     protected void onUpdate() {
         updated_at = new Date();

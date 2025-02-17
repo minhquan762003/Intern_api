@@ -32,7 +32,6 @@ public class JwtUtils {
                 .signWith(key, SignatureAlgorithm.HS256) //  Chỉ định thuật toán ký
                 .compact();
     }
-    
 
     public List<String> extractRoles(String token) {
         return Jwts.parserBuilder()
@@ -42,7 +41,7 @@ public class JwtUtils {
                 .getBody()
                 .get("roles", List.class);
     }
-
+    
     public String extractUsername(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)

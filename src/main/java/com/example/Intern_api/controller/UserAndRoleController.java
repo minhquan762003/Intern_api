@@ -3,6 +3,7 @@ package com.example.Intern_api.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +22,9 @@ public class UserAndRoleController {
     @Autowired
     private UserAndRoleService userAndRoleService;
 
+
     @PostMapping("/saveUserAndRole")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseObject> saveUserAndRole(@RequestBody UserAndRole userAndRole) {
         ResponseObject responseObject = userAndRoleService.saveUserAndRoleService(userAndRole);
         if (responseObject.getStatus().equals("failed"))
@@ -30,7 +33,9 @@ public class UserAndRoleController {
         return ResponseEntity.status(HttpStatus.OK).body(responseObject);
     }
 
+    //Lấy tất cả role
     @GetMapping("/allUserAndRoles")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseObject> getAllUsers() {
         ResponseObject responseObject = userAndRoleService.getAllUserAndRoles();
         if (responseObject.getStatus().equals("failed"))
@@ -40,6 +45,7 @@ public class UserAndRoleController {
     }
 
     @GetMapping("/getUserAndRoleById/{Id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseObject> getUserAndRoleById(@PathVariable Long Id) {
         ResponseObject responseObject = userAndRoleService.getUserAndRoleById(Id);
         if (responseObject.getStatus().equals("failed"))
@@ -49,6 +55,7 @@ public class UserAndRoleController {
     }
 
     @DeleteMapping("/deleteUserAndRoleById/{Id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseObject> deleteUserAndRoleById(@PathVariable Long Id) {
         ResponseObject responseObject = userAndRoleService.deleteUserAndRoleById(Id);
         if (responseObject.getStatus().equals("failed"))
